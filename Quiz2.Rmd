@@ -1,0 +1,55 @@
+---
+title: "Checkpoint1"
+output: html_document
+---
+
+Going through the dataset provided.  Did a summary analysis and overall word count for common words.
+
+basic data frames
+```{r}
+twitter <- readLines("./final/en_US/en_US.twitter.txt", encoding = "UTF8")
+news <- readLines("./final/en_US/en_US.news.txt",encoding = "UTF8")
+blogs <- readLines("./final/en_US/en_US.blogs.txt",encoding = "UTF8")
+```
+
+combine sample lines the data frames
+```{r}
+set.seed(1337)
+twittersample <-  sample(twitter, 100000)
+newssample <-  sample(news, 100000)
+blogssample <-  sample(blogs, 100000)
+
+
+library(NLP)
+library(tm)
+
+combined <- c(twitter,news,blogs)
+
+samplecombined <- Corpus(VectorSource(combined))
+
+```
+
+
+tm processing of tdata to remove Extra whitespace, remove numbers, remove punctuation and make everything lower case
+```{r}
+samplecombined <- tm_map(samplecombined, removeNumbers)
+samplecombined <- tm_map(samplecombined, removePunctuation)
+samplecombined <- tm_map(samplecombined, content_transformer(tolower))
+samplecombined <- tm_map(samplecombined, stripWhitespace)
+
+```
+
+Ngramtokenizer
+```{r}
+library(RWeka)
+options(mc.cores=1)
+
+TriGramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 3, max = 3))}
+tdm <- TermDocumentMatrix(samplecombined, control = list(tokenize = TriGramTokenizer))
+
+tdm2 <- rollup(tdm, 2, na.rmw=TRUE, FUN = sum)
+frequency <- sort(rowSums(as.matrix(tdm2)), decreasing=TRUE)
+frequency_df <- data.frame(term = names(frequency), freqency = frequency)
+frequency_df[grep1("case of [a-z]" ,frequency_df$term)]
+
+```

@@ -1,0 +1,110 @@
+---
+title: "Checkpoint1"
+output: html_document
+---
+
+Going through the dataset provided.  Did a summary analysis and overall word count for common words.
+
+Line Count 
+```{r}
+system("wc -l ./final/en_US/*")
+```
+
+Word Count
+```{r}
+system("wc -w ./final/en_US/*")
+```
+
+basic data frames
+```{r}
+twitter <- readLines("./final/en_US/en_US.twitter.txt",50000)
+news <- readLines("./final/en_US/en_US.news.txt",50000)
+blogs <- readLines("./final/en_US/en_US.blogs.txt",50000)
+```
+
+combine sample lines the data frames
+```{r}
+set.seed(1337)
+library(NLP)
+library(tm)
+
+combined <- c(twitter,news,blogs)
+
+samplecombined <- Corpus(VectorSource(combined))
+
+```
+
+
+tm processing of tdata to remove Extra whitespace, remove numbers, remove punctuation and make everything lower case
+```{r}
+
+
+samplecombined <- tm_map(samplecombined, stripWhitespace)
+samplecombined <- tm_map(samplecombined, removeNumbers)
+samplecombined <- tm_map(samplecombined, removePunctuation)
+samplecombined <- tm_map(samplecombined, content_transformer(tolower))
+samplecombined <- tm_map(samplecombined, PlainTextDocument)
+
+```
+
+using the slam library count the most popular words get the top 30
+```{r}
+library(slam)
+library(data.table)
+
+sampledtm <-DocumentTermMatrix(samplecombined)
+data <- setDT(data.frame(col_sums(sampledtm, na.rm = T)), keep.rownames = TRUE)
+names(data) <-c("word","count")
+
+data <- data[order(-count),]
+data2 <- head(data,30)
+
+
+```
+
+```{r}
+library(ggplot2)
+ 
+ g <- ggplot(data2, aes(x=reorder(word, count), y=count)) +
+     geom_bar(stat = "identity") +  coord_flip() +
+     theme(legend.title=element_blank()) +
+     xlab("Word") + ylab("Count") +
+   labs(title = "Top Words by Count") 
+ 
+print (g)
+
+```
+
+
+Graph the Top Words by Count
+```{r}
+samplenocommon <- tm_map(samplecombined, removeWords, stopwords("en"))
+sampledtm2 <-DocumentTermMatrix(samplenocommon)
+newdata <- setDT(data.frame(col_sums(sampledtm2, na.rm = T)), keep.rownames = TRUE)
+names(newdata) <-c("word","count")
+
+newdata <- newdata[order(-count),]
+newdata2 <- head(newdata,30)
+
+```
+
+Graph with common words removed
+```{r}
+library(ggplot2)
+ 
+ g2 <- ggplot(newdata2, aes(x=reorder(word, count), y=count)) +
+     geom_bar(stat = "identity") +  coord_flip() +
+     theme(legend.title=element_blank()) +
+     xlab("Word") + ylab("Count") +
+   labs(title = "Top Words by Count")
+ 
+print (g2)
+
+```
+
+Graph of Words and how many times they are seen.  Notice that over 60K words are only seen once.  Uncommon words should be removed from the set.
+```{r}
+qplot(data$count, geom="histogram",xlim=c(0,20), binwidth = 1) + 
+     ylab("Count of words") + xlab("Times seen") +
+     labs(title = "Histogram of Words by Times they are seen")
+```

@@ -1,4 +1,7 @@
-utdmlist <- system("ls ~/R/NLP/data/blogs/btdm*.gz", intern = TRUE)
+combineme <- function (bnt, ubtq) 
+  {
+
+utdmlist <- system(paste('ls ~/R/NLP/data/',bnt,'/',ubtq,'tdm*.gz',sep=""), intern = TRUE)
 if(exists("udfperm")){
   rm(udfperm)
 }
@@ -39,4 +42,6 @@ udfperm2 <- udfperm2[order(-udfperm2$Total),]
 row.names(udfperm2) <- 1:nrow(udfperm2)
 
 #write to file
-write.csv(udfperm2, "~/R/NLP/sdata/blogs/bbf.csv")
+write.csv(udfperm2, paste('~/R/NLP/sdata/',bnt,'/',ubtq,'bf.csv',sep=""))
+
+}

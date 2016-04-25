@@ -1,4 +1,7 @@
-utdmlist <- system("ls ~/R/NLP/data/blogs/btdm*.gz", intern = TRUE)
+combineme2 <- function (ubtq) 
+  {
+
+utdmlist <- system(paste('find ~/R/NLP -type f  | grep "',ubtq,'bf.csv"',sep=""), intern = TRUE)
 if(exists("udfperm")){
   rm(udfperm)
 }
@@ -7,7 +10,7 @@ len <- length(utdmlist)
 for (i in 1:len)
 {
   udftemp <- read.csv(utdmlist[i])
-  udftemp <- udftemp[c("term","freqency")]
+  udftemp <- udftemp[c("term","Total")]
   print("123")
   if(exists("udfperm"))
   { 
@@ -26,8 +29,8 @@ udfperm[is.na(udfperm)] <- 0
 udfperm <- cbind(udfperm, Total = rowSums(udfperm[,2:{len+1}]))
 udfperm2 <- udfperm[c("term","Total")]
 
-#Only keep the top 5%
-udfperm2 <- subset(udfperm2, Total > quantile(Total, prob = 1 - 5/100))
+#Get the first 20,000
+udfperm2 <- head(udfperm2,100000)
 
 rm(udfperm)
 rm(udftemp)
@@ -39,4 +42,6 @@ udfperm2 <- udfperm2[order(-udfperm2$Total),]
 row.names(udfperm2) <- 1:nrow(udfperm2)
 
 #write to file
-write.csv(udfperm2, "~/R/NLP/sdata/blogs/bbf.csv")
+write.csv(udfperm2, paste('~/R/NLP/sdata/Total',ubtq,'f.csv',sep=""))
+
+}

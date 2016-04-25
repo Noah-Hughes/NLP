@@ -33,10 +33,9 @@ SortandFileME <- function(x,i,n) {
 
 library(NLP)
 library(tm)
-library(RWeka)
 options(mc.cores=1)
 
-twitter <- readLines("./final/en_US/en_US.twitter.txt", encoding = "UTF8")
+twitter <- readLines("./final/en_US/en_US.blogs.txt", encoding = "UTF8")
 
 
 for(i in 1:10)  

@@ -55,7 +55,7 @@ nextword <- function(x)
       temp <- qbf[grep (paste("^",x[length(x)-3]," ",x[length(x)-2]," ",x[length(x)-1]," ",x[length(x)],sep=""),qbf$term),]
     }
     if(NROW(temp) > 0){
-      test <- as.character(temp[1,2])
+      
       matcher = TRUE
     }
     
@@ -72,7 +72,7 @@ nextword <- function(x)
       temp <- tbf[grep (paste("^",x[length(x)-2]," ",x[length(x)-1]," ",x[length(x)],sep=""),tbf$term),]
     }
     if(NROW(temp) > 0){
-      test <- as.character(temp[1,2])
+      
       matcher = TRUE
     }
   }
@@ -87,7 +87,7 @@ nextword <- function(x)
     }
     
     if(NROW(temp) > 0){
-      test <- as.character(temp[1,2])
+      
       matcher = TRUE
     }
   }
@@ -96,21 +96,24 @@ nextword <- function(x)
     x <- tail(blah,n=1)
     temp <- ubf[grep (paste("^",x[length(x)],sep=""),ubf$term),]
     if(NROW(temp) > 0){
-      test <- as.character(temp[1,2])
+      
       matcher = TRUE
     }
   
     
  }
+  if(matcher){  
+    x <- NULL
+    x <- as.vector(head(temp[,2],n=5))
+    
   
-  stringer <- unlist(strsplit(test, " "))
-  x <- tail(stringer,n=1)
-
+  
+  }
 }
 
 
 shinyServer(
-  function(input, output,session){
+  function(input, output,session){ 
 
     observe({
       
@@ -119,6 +122,18 @@ shinyServer(
 
 txt <- nextword(input$mytext)
 
-updateTextInput(session, "myresults", value=txt)
+output$myresults <- renderUI({
+  htmlout <- ""
+  for(i in txt){
+    htmlout <- paste(htmlout,i,sep='<br>') 
+  }
+  HTML(htmlout)
+  
+  
+})
+
+
     })
+
+  
 })
